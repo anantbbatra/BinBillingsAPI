@@ -71,7 +71,16 @@ app.post('/firm', (req, res) => {
 
         }).then(firm => {
             res.send(firm);
-            //create credentials
+            var generatedPassword = randomstring.generate(10);
+            var generatedSalt = randomstring.generate(10);
+            app.get('db').provider_credential.insert({
+                provider_id: firm.provider_id,
+                provider_username: firm.provider_email,
+                password: generatedPassword,
+                salt: generatedSalt,
+            }).then(firm => {
+            });
+
         });
     }
 })
@@ -146,7 +155,7 @@ app.post('/apartment', (req, res) => {
 //works
 //create new customer
 //edit this endpoint to allow insert and update by adding :new param at end of endpoint. **
-app.post('/registration', (req, res) => {
+app.post('/uploadCust', (req, res) => {
     if (typeof req.body.cust_id !== 'undefined' && req.body.cust_id) {
         console.log("not cool");
         app.get('db').customer.update(

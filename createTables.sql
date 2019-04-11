@@ -25,14 +25,6 @@ CREATE TABLE refuse_firm (
 	account_comments varchar(100)
  );
 
-CREATE TABLE employee (
-    employee_id SERIAL PRIMARY KEY,
-	employee_email varchar(50) UNIQUE,
-	employee_name varchar(40) NOT NULL,
-	employee_position varchar(50),
-	employee_city varchar(50),
-	dob varchar(50)
-);
 
 CREATE TABLE partner_payment (
 	provider_id SMALLSERIAL REFERENCES refuse_firm(provider_id),
@@ -40,7 +32,6 @@ CREATE TABLE partner_payment (
 	year varchar(4),
 	amount int,
 	debited int,
-	employee_id int REFERENCES employee (employee_id),
 	PRIMARY KEY(provider_id, month, year)
  );
 
@@ -117,12 +108,6 @@ CREATE TABLE provider_credential (
     password varchar(100) NOT NULL
 );
 
-CREATE TABLE employee_credential (
-    employee_id int PRIMARY KEY REFERENCES employee(employee_id),
-    employee_username varchar(50) UNIQUE,
-    salt varchar(50) NOT NULL,
-    password varchar(100) NOT NULL
- );
 
 CREATE TABLE customer_credential (
     cust_id int PRIMARY KEY REFERENCES customer(cust_id),
