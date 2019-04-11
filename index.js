@@ -112,6 +112,19 @@ app.post('/cust/status', (req, res) => {
 
 //works
 //set account status for firm
+app.post('/bin/status', (req, res) => {
+    
+    app.get('db').bin.update(
+        {bin_id: req.body.bin_id},
+        {status: req.body.status}
+    ).then(firm => {
+        res.send(firm[0]);
+        //create credentials
+    });
+})
+
+//works
+//set account status for firm
 app.post('/firm/status', (req, res) => {
     app.get('db').refuse_firm.update(
             {provider_id: req.body.provider_id},
