@@ -40,7 +40,6 @@ app.post('/firm', (req, res) => {
 
     if (typeof req.body.provider_id !== 'undefined' && req.body.provider_id)
     {
-        console.log("not cool");
         app.get('db').refuse_firm.update(
             {provider_id: req.body.provider_id}
             ,{
@@ -58,7 +57,6 @@ app.post('/firm', (req, res) => {
             //create credentials
         });
     }else{
-        console.log("cool");
         app.get('db').refuse_firm.insert({
             provider_name: req.body.provider_name,
             provider_email: req.body.provider_email,
@@ -103,12 +101,10 @@ app.post('/firm', (req, res) => {
 //works
 //set account status for firm
 app.post('/cust/status', (req, res) => {
-    console.log(req.body.cust_id);
     app.get('db').customer.update(
         {cust_id: req.body.cust_id},
         {account_status: req.body.account_status}
     ).then(firm => {
-        console.log(firm[0]);
         res.send(firm[0]);
         //create credentials
     });
@@ -117,12 +113,10 @@ app.post('/cust/status', (req, res) => {
 //works
 //set account status for firm
 app.post('/firm/status', (req, res) => {
-    console.log(req.body.provider_id);
     app.get('db').refuse_firm.update(
             {provider_id: req.body.provider_id},
             {account_status: req.body.account_status}
         ).then(firm => {
-        console.log(firm[0]);
         res.send(firm[0]);
         //create credentials
     });
@@ -173,7 +167,6 @@ app.post('/apartment', (req, res) => {
 //edit this endpoint to allow insert and update by adding :new param at end of endpoint. **
 app.post('/uploadCust', (req, res) => {
     if (typeof req.body.cust_id !== 'undefined' && req.body.cust_id) {
-        console.log("not cool");
         app.get('db').customer.update(
             {cust_id: req.body.cust_id}
             ,{
@@ -338,7 +331,6 @@ app.post('/transact', (req, res) => {
 //updates admin comments on query
 //edit this endpoint to add two middleware, login and token verification
 app.post('/updateQuery', (req, res) => {
-    console.log(req.body.query_id);
     app.get('db').customer_query.update(
         {query_id: req.body.query_id},
         {admin_comments: req.body.admin_comments, resolved: req.body.resolved})
@@ -348,7 +340,6 @@ app.post('/updateQuery', (req, res) => {
                     {transaction_id: query[0].transaction_id},
                     {status: "resolved"}).then(transaction =>{
                     res.send(query);
-                    console.log(transaction[0]);
                 })
             }else{
             res.send(query);
@@ -364,9 +355,7 @@ app.post('/updateQuery', (req, res) => {
 //raises issue to customer service
 //edit this endpoint to add two middleware, login and token verification
 app.post('/dispute', (req, res) => {
-    console.log(req.query.transaction_id)
     app.get('db').bin_transaction.findOne(req.query.transaction_id).then(transaction => {
-        console.log(transaction)
         app.get('db').bin_transaction.update(
             {transaction_id: req.query.transaction_id},
             {status: "conflict"})
@@ -395,7 +384,6 @@ app.get('/bins', (req, res) => {
     cust_y = parseFloat(req.query.user_y);
     app.get('db').customer.findOne(req.query.cust_id).then((cust) => {
         cust_provider_id = cust.provider_id;
-        console.log(cust.provider_id);
         app.get('db').query(
             ('SELECT bin_id, community_id, x_coordinate, y_coordinate, color ' +
             'FROM bin ' +
@@ -413,10 +401,8 @@ app.get('/bins', (req, res) => {
 //works
 //get bins near user
 app.get('/bin', (req, res) => {
-    console.log("hit");
     // if (req.params.options == "portal"){
     app.get('db').bin.findOne(req.query.bin_id).then(bin => {
-        console.log(bin.unlockcode)
         res.send(bin);
     });
     // }
@@ -425,7 +411,6 @@ app.get('/bin', (req, res) => {
 //works
 //get bins near user
 app.get('/binsForWebsite', (req, res) => {
-    console.log("hit");
     // if (req.params.options == "portal"){
         app.get('db').bin.find({provider_id: req.query.provider_id}).then(bins => {
             res.send(bins);
@@ -440,31 +425,23 @@ app.get('/transactions/:options', (req, res) => {
     if(!req.params.options) { //used only by android
         app.get('db').query('SELECT * FROM bin_transaction WHERE cust_id =$1 AND status != $2', [req.query.cust_id, "initiated"])
             .then(transactions => {
-                console.log(transactions);
                 res.send(transactions);
             });
-    }else{        console.log("here");
+    }else{
         if(req.params.options == "byFirm"){ //filter by provider_id
-            console.log("1");
-            console.log(req.query.provider_id);
             app.get('db').query('SELECT * FROM bin_transaction WHERE provider_id =$1', [req.query.provider_id])
                 .then(transactions => {
-                    console.log(transactions);
                     res.send(transactions);
                 });
         }else if(req.params.options == "byCust"){ //filter by cust_id
-            console.log("2");
 
             app.get('db').query('SELECT * FROM bin_transaction WHERE cust_id =$1', [req.query.cust_id])
                 .then(transactions => {
-                    console.log(transactions);
                     res.send(transactions);
                 });
         }else { //filter by both cust_id and firm_id
-            console.log("3");
             app.get('db').query('SELECT * FROM bin_transaction WHERE cust_id =$1 AND provider_id = $2', [req.query.cust_id, req.query.provider_id])
                 .then(transactions => {
-                    console.log(transactions);
                     res.send(transactions);
                 });
         }
@@ -501,7 +478,6 @@ app.get('/userInfo', (req, res) => {
                 customer.provider_name = provider.provider_name;
                 customer.apartment_name = apartment.community_name;
                 customer.city_name = apartment.community_city;
-                console.log(customer);
                 res.send(customer);
             })
 
@@ -513,10 +489,8 @@ app.get('/userInfo', (req, res) => {
 //works
 //get provider info
 app.get('/providerInfo', (req, res) => {
-    console.log(req.query.provider_id);
     app.get('db').refuse_firm.findOne(req.query.provider_id).then(provider => {
         res.send(provider);
-        console.log(provider.green)
     });
 });
 
@@ -533,12 +507,10 @@ app.get('/query', (req, res) => {
 app.get('/partner_payments', (req, res) => {
     if (typeof req.query.provider_id !== 'undefined' && req.query.provider_id)
     {
-        console.log('bad');
         app.get('db').partner_payment.find({provider_id: req.query.provider_id, debited: req.query.debited}).then(payments => {
             res.send(payments);
         });
     }else{
-        console.log('hi');
         app.get('db').partner_payment.find({debited: req.query.debited}).then(payments => {
             res.send(payments);
         });
@@ -552,16 +524,13 @@ app.post('/login/website', (req, res) => {
 
     app.get('db').provider_credential.find({provider_username: req.body.username}).then(credentials => {
         if (credentials[0] == undefined){
-            console.log("no such account ");
 
-            res.send("invalid");
+            res.send("0");
         }else {
             if (credentials[0].password == req.body.password) {
-                console.log("hi");
                 res.send("" + credentials[0].provider_id);
             } else {
-                console.log("invalid password");
-                res.send("invalid");
+                res.send("0");
             }
         }
     });
