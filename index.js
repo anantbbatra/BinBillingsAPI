@@ -71,6 +71,7 @@ app.post('/firm', (req, res) => {
 
         }).then(firm => {
             res.send(firm);
+
             var generatedPassword = randomstring.generate(10);
             var generatedSalt = randomstring.generate(10);
             app.get('db').provider_credential.insert({
@@ -80,6 +81,17 @@ app.post('/firm', (req, res) => {
                 salt: generatedSalt,
             }).then(firm => {
             });
+
+            var d = new Date();
+            app.get('db').partner_payment.insert({
+                provider_id: firm.provider_id,
+                month: d.getMonth(),
+                year: d.getFullYear(),
+                total: 0,
+                debited: 0,
+            }).then(firm => {
+            });
+
 
         });
     }

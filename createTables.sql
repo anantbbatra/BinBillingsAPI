@@ -30,7 +30,7 @@ CREATE TABLE partner_payment (
 	provider_id SMALLSERIAL REFERENCES refuse_firm(provider_id),
 	month varchar(2),
 	year varchar(4),
-	amount int,
+	total int,
 	debited int,
 	PRIMARY KEY(provider_id, month, year)
  );
