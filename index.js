@@ -83,9 +83,13 @@ app.post('/firm', (req, res) => {
             });
 
             var d = new Date();
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            ];
+
             app.get('db').partner_payment.insert({
                 provider_id: firm.provider_id,
-                month: d.getMonth(),
+                month: monthNames[d.getMonth()],
                 year: d.getFullYear(),
                 total: 0,
                 debited: 0,
@@ -312,7 +316,6 @@ app.post('/transact', (req, res) => {
                 {weight: req.body.weight, total_cost: (transaction.rate*req.body.weight), status: "completed"})
                 .then(transaction_receipt =>
                 {res.send(transaction_receipt);
-
                 monthOfTransaction = String(transaction_receipt[0].time_of_transaction).substring(4,7);
                 yearOfTransaction = String(transaction_receipt[0].time_of_transaction).substring(11,15);
                 app.get('db').partner_payment.find({provider_id: transaction_receipt[0].provider_id, month: monthOfTransaction, year: yearOfTransaction}).then(monthlyStub => {
