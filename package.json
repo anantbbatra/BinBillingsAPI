@@ -1,0 +1,16 @@
+{
+  "name": "bin-billings-rest",
+  "version": "1.0.0",
+  "description": "REST API servicing data, authentication and payment requests for the Bin Billings Website and Mobile Application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anant Batra",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "massive": "^5.7.6",
+    "randomstring": "^1.1.5"
+  }
+}
