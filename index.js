@@ -531,8 +531,39 @@ app.get('/query', (req, res) => {
 //works
 //get query from transaction_id
 app.get('/partner_payments', (req, res) => {
-    app.get('db').partner_payment.find({provider_id: req.query.provider_id, debited: 0}).then(payments => {
-        res.send(payments);
+    if (typeof req.query.provider_id !== 'undefined' && req.query.provider_id)
+    {
+        console.log('bad');
+        app.get('db').partner_payment.find({provider_id: req.query.provider_id, debited: req.query.debited}).then(payments => {
+            res.send(payments);
+        });
+    }else{
+        console.log('hi');
+        app.get('db').partner_payment.find({debited: req.query.debited}).then(payments => {
+            res.send(payments);
+        });
+    }
+
+});
+
+//works
+//get query from transaction_id
+app.post('/login/website', (req, res) => {
+
+    app.get('db').provider_credential.find({provider_username: req.body.username}).then(credentials => {
+        if (credentials[0] == undefined){
+            console.log("no such account ");
+
+            res.send("invalid");
+        }else {
+            if (credentials[0].password == req.body.password) {
+                console.log("hi");
+                res.send("" + credentials[0].provider_id);
+            } else {
+                console.log("invalid password");
+                res.send("invalid");
+            }
+        }
     });
 });
 
