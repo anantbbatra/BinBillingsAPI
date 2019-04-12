@@ -8,7 +8,7 @@
 //fix massive queries to reduce
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 3001;
 const massive = require("massive");
 const http = require('http');
 const bodyParser = require("body-parser");
@@ -20,7 +20,6 @@ var date = new Date();
 
 massive(connectionString).then(massiveInstance => {
     app.set('db', massiveInstance);
-    console.log('Massive connected to binbillings database successfully');
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
@@ -30,8 +29,6 @@ app.use(bodyParser.urlencoded({
 }));
 
 //POST ENDPOINTS
-
-
 
 //works
 //create refuse firm
@@ -113,7 +110,7 @@ app.post('/cust/status', (req, res) => {
 //works
 //set account status for firm
 app.post('/bin/status', (req, res) => {
-    
+
     app.get('db').bin.update(
         {bin_id: req.body.bin_id},
         {status: req.body.status}
@@ -209,6 +206,7 @@ app.post('/uploadCust', (req, res) => {
 //create new bin
 //edit this endpoint to allow insert and update by adding :new param at end of endpoint. **
 app.post('/bin', (req, res) => {
+
     if (typeof req.body.bin_id !== 'undefined' && req.body.bin_id)
     {
         app.get('db').bin.update(
@@ -281,10 +279,12 @@ app.post('/recharge', (req, res) => {
 //add error checking message responses
 // create new transaction
 app.post('/unlock', (req, res) => {
-    app.get('db').customer.findOne(req.body.cust_id).then(customer => {
-        app.get('db').bin.findOne(req.body.bin_id).then(bin => {
+    app.get('db').customer.findOne(req.query.cust_id).then(customer => {
+        app.get('db').bin.findOne(req.query.bin_id).then(bin => {
+
             if ((bin.provider_id == customer.provider_id) & (customer.balance > 5)) {
                 app.get('db').refuse_firm.findOne(bin.provider_id).then(provider => {
+
                     var providerRate;
                     if (bin.color == 'red') {
                         providerRate = provider.red
@@ -302,7 +302,8 @@ app.post('/unlock', (req, res) => {
                         status: "initiated"
                     }).then(bin_transaction => {
                         var hashedCode = bin.unlockCode + date.getHours();//change this so it hashes instead of adding
-                        var response = (bin_transaction.transaction_id + ' : ' + hashedCode);
+                        var response = (bin_transaction.unlockcode= bin.unlockcode);
+
                         res.send(bin_transaction);
                     });
                 })
@@ -315,13 +316,15 @@ app.post('/unlock', (req, res) => {
 //completes transaction
 //edit this endpoint to add two middleware, login and token verification
 app.post('/transact', (req, res) => {
-    app.get('db').bin_transaction.findOne(req.body.transaction_id).then(transaction => {
+
+    app.get('db').bin_transaction.findOne(req.query.transaction_id).then(transaction => {
         if (transaction.status!="completed"){
+
             app.get('db').bin_transaction.update(
-                {transaction_id: req.body.transaction_id},
-                {weight: req.body.weight, total_cost: (transaction.rate*req.body.weight), status: "completed"})
+                {transaction_id: req.query.transaction_id},
+                {weight: req.query.weight, total_cost: (transaction.rate*req.query.weight), status: "completed"})
                 .then(transaction_receipt =>
-                {res.send(transaction_receipt);
+                {res.send(transaction_receipt[0]);
                 monthOfTransaction = String(transaction_receipt[0].time_of_transaction).substring(4,7);
                 yearOfTransaction = String(transaction_receipt[0].time_of_transaction).substring(11,15);
                 app.get('db').partner_payment.find({provider_id: transaction_receipt[0].provider_id, month: monthOfTransaction, year: yearOfTransaction}).then(monthlyStub => {
@@ -431,6 +434,12 @@ app.get('/binsForWebsite', (req, res) => {
     // }
 });
 
+app.get('/transactionsForAndroid', (req, res) => {
+    app.get('db').query('SELECT * FROM bin_transaction WHERE cust_id =$1 AND status != $2', [req.query.cust_id, "initiated"])
+        .then(transactions => {
+            res.send(transactions);
+        });
+});
 
 //works
 //get all user transactions except those not completed.
@@ -553,4 +562,23 @@ app.post('/login/website', (req, res) => {
 //used to test connection
 app.get('/test', (req, res) => {
     res.send("Hello.");
+});
+
+////////////////////////////////////
+const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+app.get('/getStatus', function(req, res, next) {
+    rl.question('Is this bin available? ', (answer) => {
+        res.send(answer);
+    })
+});
+
+app.get('/getWeight', function(req, res, next) {
+    rl.question('What is the weight? ', (answer) => {
+        res.send(answer);
+    })
 });
